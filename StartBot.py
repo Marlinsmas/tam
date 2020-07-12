@@ -20,7 +20,7 @@ async def add_user(user_id):
     except:
         print("проблема в add_user")
 
-# Кириииил такой дебиииииииил
+df
 
 async def check_training(user_id):
     try:
@@ -31,10 +31,7 @@ async def check_training(user_id):
             return False
     except:
         return False
-cvgbfg
-fghgfdfghf!!
-fghgfg
-fggg
+
 
 @bot.on.message(text=["начать", "начало", "старт"], lower=True)
 async def start(ans: Message):

@@ -20,7 +20,7 @@ async def add_user(user_id):
     except:
         print("проблема в add_user")
 
-
+df
 
 async def check_training(user_id):
     try:

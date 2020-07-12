@@ -19,10 +19,6 @@ bot = Bot(token, group_id=group_id)
 
 
 
-#dfghjhgfghgfg
 
 
-
-
-
-#456754
+вапенгшгне

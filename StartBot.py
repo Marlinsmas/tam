@@ -1,9 +1,3 @@
-from peewee import *
-import peewee
-import tortoise
-import database_pattern
-from peewee_async import Manager
-import asyncio
 from database_pattern import *
 from vk_api.keyboard import VkKeyboardColor, VkKeyboard
 from config import *
@@ -29,26 +23,86 @@ async def add_user(user_id):
 
 
 async def check_training(user_id):
-    u = await Users.get(user_id=user_id)
-    if u.train:
-        return True
-    else:
+    try:
+        u = await Users.get(user_id=user_id)
+        if u.train:
+            return True
+        else:
+            return False
+    except:
         return False
 
 
 @bot.on.message(text=["начать", "начало", "старт"], lower=True)
 async def start(ans: Message):
     if await check_training(ans.from_id):
-        await ans("Вы уже начали!")
+        await ans("Вы уже прошли обучение!")
         await menu(ans)
     else:
         await add_user(ans.from_id)
-        pass
+        keyboard = VkKeyboard(one_time=False)
+        keyboard.add_button("Я готов!", VkKeyboardColor.POSITIVE)
+        keyboard = keyboard.get_keyboard()
+        await ans("Ты готов заботиться о питомцах?", keyboard=keyboard)
+        await bot.branch.add(ans.peer_id, "start_branch")
 
-#1
+
+@bot.branch.simple_branch("start_branch")
+async def start_branch(ans: Message, response=None):
+    if ans.text.lower() == "я готов!" or ans.payload == '1':
+        keyboard = VkKeyboard(one_time=False)
+        keyboard.add_button("🐕 Собака", VkKeyboardColor.POSITIVE)
+        keyboard.add_button("🐈 Кошка", VkKeyboardColor.POSITIVE)
+        keyboard = keyboard.get_keyboard()
+        await ans("Выбери свое бойца", keyboard=keyboard)
+
+    elif ans.text == "🐕 Собака":
+        keyboard = VkKeyboard(one_time=False)
+        keyboard.add_button("Беру!", VkKeyboardColor.POSITIVE, payload=11)
+        keyboard.add_line()
+        keyboard.add_button("Я еще подумаю...", VkKeyboardColor.NEGATIVE, payload=1)
+        keyboard = keyboard.get_keyboard()
+        await ans("Это собка очень крутая", keyboard=keyboard)
+
+
+    elif ans.text == "🐈 Кошка":
+        keyboard = VkKeyboard(one_time=False)
+        keyboard.add_button("Беру!", VkKeyboardColor.POSITIVE, payload=12)
+        keyboard.add_line()
+        keyboard.add_button("Я еще подумаю...", VkKeyboardColor.NEGATIVE, payload=1)
+        keyboard = keyboard.get_keyboard()
+        await ans("Это кошка очень крутая", keyboard=keyboard)
+
+    elif ans.payload == '11':
+        u = await Users.get(user_id=ans.peer_id)
+        u.enimal = "собака"
+        await u.save()
+        await ans("Как будут звать ващего питомца?")
+
+    elif ans.payload == '12':
+        u = await Users.get(user_id=ans.peer_id)
+        u.enimal = "кошка"
+        await u.save()
+        await ans("Как будут звать ващего питомца?")
+
+    else:
+        name = ans.text
+        u = await Users.get(user_id=ans.peer_id)
+        u.nickname = name
+        u.train = True
+        await u.save()
+        await ans(f"{name} прекрасное имя!")
+        await menu(ans)
+        await bot.branch.exit(ans.peer_id)
 
 
 
+
+
+
+@bot.on.message(text="1", lower=True)
+async def menu(ans: Message):
+    pass
 
 
 
@@ -57,63 +111,30 @@ async def start(ans: Message):
 async def menu(ans: Message):
 
 
-    # await loop.run_until_complete(await my_async_func())
-    # await loop.close()
-    await add_user(ans.from_id)
+    # await add_user(ans.from_id)
 
-    u = await Users.get(user_id=ans.from_id)
-    print(u.energy)
+    # u = await Users.get(user_id=ans.from_id)
+    # print(u.energy)
 
     if await check_training(ans.from_id):
         keyboard = VkKeyboard(one_time=False)
-        keyboard.add_button("🏦 Город", VkKeyboardColor.DEFAULT)
-        keyboard.add_button("🗒 Задания", VkKeyboardColor.DEFAULT)
-        keyboard.add_button("🌽 Ресурсы", VkKeyboardColor.DEFAULT)
+        keyboard.add_button("🍖 Покормить", VkKeyboardColor.POSITIVE)
+        keyboard.add_button("❤️ Вылечить", VkKeyboardColor.POSITIVE)
+        keyboard.add_button("⚽ Поиграть", VkKeyboardColor.POSITIVE)
         keyboard.add_line()
-        keyboard.add_button("💰 Баланс", VkKeyboardColor.PRIMARY)
-        keyboard.add_button("🎁 Бонус", VkKeyboardColor.PRIMARY)
-        keyboard.add_button("📊 Статистика", VkKeyboardColor.PRIMARY)
+        keyboard.add_button("🏪 Магазин", VkKeyboardColor.NEGATIVE)
+        keyboard.add_button("🏥 Больница", VkKeyboardColor.NEGATIVE)
         keyboard.add_line()
-        keyboard.add_button("📋 Документация", VkKeyboardColor.POSITIVE)
-        keyboard.add_button("📢 Рассылка", VkKeyboardColor.POSITIVE)
-        keyboard.add_button("💸 Доход", VkKeyboardColor.POSITIVE)
-        keyboard.add_line()
-        keyboard.add_button("🏗 Строительство", VkKeyboardColor.NEGATIVE)
+        keyboard.add_button("👥 Клубы", VkKeyboardColor.PRIMARY)
+        keyboard.add_button("📢 Рассылка", VkKeyboardColor.PRIMARY)
+        keyboard.add_button("📊 Статиска", VkKeyboardColor.PRIMARY)
+        # keyboard.add_line()
+        # keyboard.add_button("🏗 Строительство", VkKeyboardColor.NEGATIVE)
         keyboard = keyboard.get_keyboard()
         await ans("Меню:", keyboard=keyboard)
     else:
         await ans("Вы еще не начали игру."
                              "\nДля начала напишите \"Начать\"")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

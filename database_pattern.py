@@ -16,6 +16,9 @@ class Users(Model):
     health = fields.IntField(default=10)
     energy = fields.IntField(default=10)
     train = fields.BooleanField(default=0)
+    enimal = fields.CharField(50, default="")
+    enimal = fields.CharField(50, default="")
+    nickname = fields.CharField(50, default="")
 
     class Meta:
         table = 'user_info_test111'
@@ -32,5 +35,7 @@ async def init_db():
     )
     # Generate the schema
     await Tortoise.generate_schemas()
+
+    # await Tortoise.a
 
 

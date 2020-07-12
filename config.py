@@ -16,3 +16,13 @@ token = "e61d07323d23dcc9fd333e02004d2e241b2974bd50381fd0e12a2eaf91227a39796d3c5
 group_id = "197028739"
 
 bot = Bot(token, group_id=group_id)
+
+
+
+#dfghjhgfghgfg
+
+
+
+
+
+#456754

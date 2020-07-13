@@ -18,7 +18,3 @@ group_id = "197028739"
 bot = Bot(token, group_id=group_id)
 
 
-
-
-
-вапенгшгне

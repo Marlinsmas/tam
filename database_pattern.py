@@ -17,8 +17,8 @@ class Users(Model):
     energy = fields.IntField(default=10)
     train = fields.BooleanField(default=0)
     enimal = fields.CharField(50, default="")
-    enimal = fields.CharField(50, default="")
     nickname = fields.CharField(50, default="")
+
 
     class Meta:
         table = 'user_info_test111'
@@ -26,6 +26,17 @@ class Users(Model):
     def __str__(self):
         return self.name
 
+class UsersBoolean(Model):
+    id = fields.IntField(pk=True)
+    user_id = fields.IntField(null=True)
+    train_flag = fields.BooleanField(default=0)
+
+
+    class Meta:
+        table = 'user_boolean_test111'
+
+    def __str__(self):
+        return self.name
 
 async def init_db():
 

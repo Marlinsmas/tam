@@ -281,7 +281,7 @@ async def menu(ans: Message):
         keyboard.add_button("📢 Рассылка", VkKeyboardColor.PRIMARY, payload={"button":"рассылка"})
         keyboard.add_button("📊 Статиска", VkKeyboardColor.PRIMARY, payload={"button":"статистика"})
         keyboard = keyboard.get_keyboard()
-        await ans("Меню:", keyboard=keyboard)
+        await ans("Меню:", keyboard=keyboard, attachment="photo-197028739_457239017")
     else:
         await ans("Вы еще не начали игру."
                              "\nДля начала напишите \"Начать\"")
@@ -514,7 +514,6 @@ async def feed_branch(ans: Message):
 async def heal(ans: Message):
     u = await GameValues.get(user_id=ans.peer_id)
     keyboard = VkKeyboard(one_time=False)
-
     if u.tablet > 0:
         keyboard.add_button(f"💊 Таблетка +10❤ - {u.tablet}", VkKeyboardColor.DEFAULT, payload={"button": "таблетка"})
         keyboard.add_line()
@@ -522,16 +521,17 @@ async def heal(ans: Message):
         keyboard.add_button(f"💉 Шприц +40❤ - {u.injector}", VkKeyboardColor.DEFAULT, payload={"button": "шприц"})
         keyboard.add_line()
     if u.tablet == 0 and u.injector == 0:
-        keyboard.add_button("🏥 Больница", VkKeyboardColor.DEFAULT, payload={"button": "магазин"})
-        keyboard = keyboard.add_line()
+        keyboard.add_button("🏥 Больница", VkKeyboardColor.DEFAULT, payload={"button": "больница"})
+        keyboard.add_line()
         keyboard.add_button("🔙 Назад", VkKeyboardColor.POSITIVE, payload={"button": "меню"})
+        keyboard = keyboard.get_keyboard()
         await ans("У вас совсем нет медикаментов..\n Отправляйтесь в больницу и прикупите чего-нибудь:", keyboard=keyboard)
     else:
         info = await Users.get(user_id=ans.peer_id)
-        keyboard.add_button("🔙 Назад", VkKeyboardColor.DEFAULT, payload={"button": "меню"})
+        keyboard.add_button("🔙 Назад", VkKeyboardColor.POSITIVE, payload={"button": "меню"})
         keyboard = keyboard.get_keyboard()
-        await ans(f"Здоровье {info.healt}/50", keyboard=keyboard)
-    # if u.tablet > 0 or u.injector > 0:
+        await ans(f"Здоровье {info.health}/50", keyboard=keyboard)
+    if u.tablet > 0 or u.injector > 0:
         await bot.branch.add(ans.peer_id, "heal_branch")
 
 @bot.branch.simple_branch("heal_branch")
@@ -543,20 +543,17 @@ async def heal_branch(ans: Message):
         button = button["button"]
     u = await GameValues.get(user_id=ans.peer_id)
     info = await Users.get(user_id=ans.peer_id)
-    keyboard = VkKeyboard(one_time=False)
-    keyboard.add_button("🔙 Назад", VkKeyboardColor.POSITIVE, payload={"button": "назад"})
-    keyboard = keyboard.get_keyboard()
     if button == "таблетка":
         if info.health < 50:
             u.tablet = u.tablet - 1
-            info.health = info.health + 5
+            info.health = info.health + 10
             if info.health > 50:
                 info.health = 50
 
             await u.save()
             await info.save()
             await bot.branch.exit(ans.peer_id)
-            await feed(ans)
+            await heal(ans)
         else:
             await ans("Ваш питомец уже здоров")
             await bot.branch.exit(ans.peer_id)
@@ -565,14 +562,14 @@ async def heal_branch(ans: Message):
     elif button == "шприц":
         if info.health < 50:
             u.injector = u.injector - 1
-            info.health = info.health + 10
+            info.health = info.health + 40
             if info.health > 50:
                 info.health = 50
 
             await u.save()
             await info.save()
             await bot.branch.exit(ans.peer_id)
-            await feed(ans)
+            await heal(ans)
         else:
             await ans("Ваш питомец уже здоров")
             await bot.branch.exit(ans.peer_id)
@@ -582,13 +579,245 @@ async def heal_branch(ans: Message):
         await menu(ans)
         await bot.branch.exit(ans.peer_id)
 
-    elif button == "назад":
-        await heal(ans)
-        await bot.branch.exit(ans.peer_id)
 
     else:
         await ans("Команда не найдена, попробуйте еще раз или напишите \"Меню\"")
 
+
+
+@bot.on.message(PayloadRule({"button":"магазин"}))
+async def shop(ans: Message):
+    u = await GameValues.get(user_id=ans.peer_id)
+    keyboard = VkKeyboard(one_time=False)
+
+    keyboard.add_button(f"🥛 Молоко +5🍖 - {u.milk}", VkKeyboardColor.DEFAULT, payload={"button":"молоко"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🥕 Морковь +10🍖 - {u.carrot}", VkKeyboardColor.DEFAULT, payload={"button":"морковь"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🍞 Хлеб +15🍖 - {u.bread}", VkKeyboardColor.DEFAULT, payload={"button":"хлеб"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🍳 Яичница +20🍖 - {u.agg}", VkKeyboardColor.DEFAULT, payload={"button":"яичница"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🎂 Торт +25🍖 - {u.cake}", VkKeyboardColor.DEFAULT, payload={"button":"торт"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🍚 Рис +30🍖 - {u.rice}", VkKeyboardColor.DEFAULT, payload={"button":"рис"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🍕 Пицца +35🍖 - {u.pizza}", VkKeyboardColor.DEFAULT, payload={"button":"пицца"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🍗 Куриная ножка +40🍖 - {u.leg}", VkKeyboardColor.DEFAULT, payload={"button":"ножка"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"🥩 Мясо +45🍖 - {u.meat}", VkKeyboardColor.DEFAULT, payload={"button":"мясо"})
+    keyboard.add_line()
+
+    keyboard.add_button("🔙 Назад", VkKeyboardColor.POSITIVE, payload={"button": "меню"})
+    keyboard = keyboard.get_keyboard()
+    await ans("Доступно:", keyboard=keyboard)
+    await bot.branch.add(ans.peer_id, "shop_branch")
+
+
+@bot.branch.simple_branch("shop_branch")
+async def shop_branch(ans: Message):
+    button = None
+    if ans.payload is not None:
+        button = le(ans.payload)
+        print(button["button"])  # Достаем из payload название кнопки чтобы не делать так: if ans.payload == "{\"button\":\"назад\"}":
+        button = button["button"]
+    u = await GameValues.get(user_id=ans.peer_id)
+    info = await Users.get(user_id=ans.peer_id)
+
+    if button == "молоко":
+        if info.balance >= 100:
+            u.milk = u.milk + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили молоко!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "морковь":
+        if info.balance >= 100:
+            u.carrot = u.carrot + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили морковь!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "хлеб":
+        if info.balance >= 100:
+            u.bread = u.bread + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили хлеб!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "яичница":
+        if info.balance >= 100:
+            u.agg = u.agg + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили яичницу!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "торт":
+        if info.balance >= 100:
+            u.cake = u.cake + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили торт!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "рис":
+        if info.balance >= 100:
+            u.rice = u.rice + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили рис!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "пицца":
+        if info.balance >= 100:
+            u.pizza = u.pizza + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили пиццу!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "ножка":
+        if info.balance >= 100:
+            u.leg = u.leg + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили куриную ножку!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "мясо":
+        if info.balance >= 100:
+            u.meat = u.meat + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили мясо!")
+            await bot.branch.exit(ans.peer_id)
+            await shop(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "меню":
+        await menu(ans)
+        await bot.branch.exit(ans.peer_id)
+
+
+
+    else:
+        await ans("Команда не найдена, попробуйте еще раз или напишите \"Меню\"")
+
+
+
+@bot.on.message(PayloadRule({"button":"больница"}))
+async def hospital(ans: Message):
+    u = await GameValues.get(user_id=ans.peer_id)
+    keyboard = VkKeyboard(one_time=False)
+
+    keyboard.add_button(f"💊 Таблетка +10❤  $- {u.tablet}", VkKeyboardColor.DEFAULT, payload={"button": "таблетка"})
+    keyboard.add_line()
+
+    keyboard.add_button(f"💉 Шприц +40❤  $- {u.injector}", VkKeyboardColor.DEFAULT, payload={"button": "шприц"})
+    keyboard.add_line()
+
+    keyboard.add_button("🔙 Назад", VkKeyboardColor.POSITIVE, payload={"button": "меню"})
+    keyboard = keyboard.get_keyboard()
+    await ans(f"Доступно:", keyboard=keyboard)
+    await bot.branch.add(ans.peer_id, "hospital_branch")
+
+@bot.branch.simple_branch("hospital_branch")
+async def hospital_branch(ans: Message):
+    button = None
+    if ans.payload is not None:
+        button = le(ans.payload)
+        print(button["button"])  # Достаем из payload название кнопки чтобы не делать так: if ans.payload == "{\"button\":\"назад\"}":
+        button = button["button"]
+    u = await GameValues.get(user_id=ans.peer_id)
+    info = await Users.get(user_id=ans.peer_id)
+    if button == "таблетка":
+        if info.balance >= 100:
+            u.tablet = u.tablet + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили таблетку!")
+            await bot.branch.exit(ans.peer_id)
+            await hospital(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "шприц":
+        if info.balance >= 100:
+            u.injector = u.injector + 1
+            info.balance = info.balance - 100
+            await info.save()
+            await u.save()
+
+            await ans("Вы успешно купили шприц!")
+            await bot.branch.exit(ans.peer_id)
+            await hospital(ans)
+        else:
+            await ans("У вас не хватает средств")
+
+    elif button == "меню":
+        await menu(ans)
+        await bot.branch.exit(ans.peer_id)
+
+    else:
+        await ans("Команда не найдена, попробуйте еще раз или напишите \"Меню\"")
 
 
 

@@ -21,7 +21,7 @@ class Users(Model):
 
 
     class Meta:
-        table = 'user_info_test111'
+        table = 'user_info'
 
     def __str__(self):
         return self.name
@@ -33,7 +33,33 @@ class UsersBoolean(Model):
 
 
     class Meta:
-        table = 'user_boolean_test111'
+        table = 'user_boolean'
+
+    def __str__(self):
+        return self.name
+
+
+class GameValues(Model):
+    id = fields.IntField(pk=True)
+    user_id = fields.IntField(null=True)
+
+    milk = fields.IntField(default=0)
+    carrot = fields.IntField(default=0)
+    bread = fields.IntField(default=0)
+    agg = fields.IntField(default=0)
+    cake = fields.IntField(default=0)
+    rice = fields.IntField(default=0)
+    pizza = fields.IntField(default=0)
+    milk = fields.IntField(default=0)
+    leg = fields.IntField(default=0)
+    meat = fields.IntField(default=0)
+
+    injector = fields.IntField(default=0)
+    tablet = fields.IntField(default=0)
+
+
+    class Meta:
+        table = 'user_values'
 
     def __str__(self):
         return self.name

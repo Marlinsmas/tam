@@ -13,11 +13,12 @@ class Users(Model):
     donut = fields.IntField(default=0)
     happiness = fields.IntField(default=10)
     hunger = fields.IntField(default=10)
-    health = fields.IntField(default=10)
+    # health = fields.IntField(default=10)
     energy = fields.IntField(default=10)
     train = fields.BooleanField(default=0)
     enimal = fields.CharField(50, default="")
     nickname = fields.CharField(50, default="")
+    health = fields.FloatField(default=0)
 
 
     class Meta:
@@ -30,6 +31,8 @@ class UsersBoolean(Model):
     id = fields.IntField(pk=True)
     user_id = fields.IntField(null=True)
     train_flag = fields.BooleanField(default=0)
+    check_one_click = fields.BooleanField(default=0)
+    check_death = fields.BooleanField(default=0)
 
 
     class Meta:
@@ -60,6 +63,20 @@ class GameValues(Model):
 
     class Meta:
         table = 'user_values'
+
+    def __str__(self):
+        return self.name
+
+
+class GameStat(Model):
+    user_id = fields.IntField(null=True)
+    statBal = fields.IntField(default=0)
+    statEat = fields.IntField(default=0)
+    statMed = fields.IntField(default=0)
+
+
+    class Meta:
+        table = 'user_stat'
 
     def __str__(self):
         return self.name
